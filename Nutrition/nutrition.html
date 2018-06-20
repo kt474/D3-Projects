@@ -1,0 +1,488 @@
+<!--
+sources: https://fastfood.theringer.com/
+http://www.mydailyintake.net/daily-intake-levels/
+https://www.eatthis.com/worst-fast-food-2017/
+https://blog.paleohacks.com/worst-fast-food/
+-->
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+<link rel="shortcut icon" href="favi.png" />
+<title>Fast Food Nutrition</title>
+<style>
+  div.tooltip {
+    position: absolute;
+    text-align: center;
+    width: 82px;
+    height: 90px;
+    padding: 2px;
+    font: 12px sans-serif;
+    font-family:'Open Sans', sans-serif;
+    background: white;
+    border: 0px;
+    border-radius: 8px;
+    pointer-events: none;
+  }
+  svg{
+    /* border: 1px solid #ccc; */
+  }
+  #main{
+    margin:0 auto;
+  }
+  *{
+    font-family: 'Open Sans', sans-serif;
+  }
+  body{
+    background: #F6F3E7;
+  }
+  svg2{
+    /* border: 1px solid #ccc; */
+  }
+</style>
+<body>
+  <h2 align = 'center'>Fast Food Nutrition</h2>
+  <div id = 'bsvg' align = 'center'>
+    <script>
+    var svg2 = d3.select('#bsvg')
+      .append('svg')
+      .attr('width', 1000)
+      .attr('height', 30)
+    </script>
+  </div>
+  <div id = 'main' align = 'center'>
+  <div id = 'tooltop'></div>
+    <script>
+
+      var width = 1000;
+      var height = 500;
+      var padding = 35;
+
+      var xScale = d3.scaleLinear()
+        .domain([0, 2200])
+        .range([padding, width - padding]);
+      var yScale = d3.scaleLinear()
+        .domain([0, 40])
+        .range([height-padding, 6]);
+      var pScale = d3.scaleLinear()
+        .domain([0, 80])
+        .range([padding, width - padding]);
+      var cScale = d3.scaleLinear()
+        .domain([0, 320])
+        .range([padding, width - padding]);
+
+      var sScale = d3.scaleLinear()
+        .domain([0, 4])
+        .range([padding, width - padding]);
+
+
+      var svg = d3.select('#main')
+        .append('svg')
+        .attr('width', width)
+        .attr('height', height);
+
+      var div = d3.select('body')
+        .append('div')
+        .attr('class', 'tooltip')
+        .style('opacity', 0);
+
+      svg.append('g')
+        .attr('transform', 'translate(0,'+ (height-padding) + ')')
+        .call(d3.axisBottom(xScale));
+      svg.append('g')
+        .attr('transform', 'translate('+ padding + ',' + '0)')
+        .call(d3.axisLeft(yScale).tickValues([0]).tickSize(0));
+      svg.append('text')
+        .attr('x', 10)
+        .attr('y', 180)
+        .attr('transform', 'rotate(90,10,180)')
+        .text('Fast Food Item')
+      svg.append('text')
+        .attr('x', 470)
+        .attr('y', 495)
+        .text('Calories')
+
+      d3.queue()
+      .defer(d3.tsv, 'nutrition.tsv')
+      .await(display);
+
+      function display(error, nutrition){
+        nut = nutrition;
+        svg2.append('text')
+          .attr('x', 250)
+          .attr('y', 20)
+          .attr('cursor', 'pointer')
+          .text('Calories')
+          .on('click', function(d){
+            d3.select('#main').selectAll('svg > rect').remove()
+            d3.selectAll('svg > g').remove()
+            d3.select('#main').selectAll('svg > text').remove()
+            svg.append('g')
+              .attr('transform', 'translate(0,'+ (height-padding) + ')')
+              .call(d3.axisBottom(xScale))
+            svg.append('g')
+              .attr('transform', 'translate('+ padding + ',' + '0)')
+              .call(d3.axisLeft(yScale).tickValues([0]).tickSize(0))
+              svg.append('text')
+                .attr('x', 10)
+                .attr('y', 180)
+                .attr('transform', 'rotate(90,10,180)')
+                .text('Fast Food Item')
+                svg.append('text')
+                  .attr('x', 470)
+                  .attr('y', 495)
+                  .text('Calories')
+            showCalories();
+          });
+        svg2.append('text')
+          .attr('x', 352)
+          .attr('y', 20)
+          .attr('cursor', 'pointer')
+          .text('Protein')
+          .on('click', function(d){
+            d3.select('#main').selectAll('svg > rect').remove()
+            d3.selectAll('svg > g').remove()
+            d3.select('#main').selectAll('svg > text').remove()
+            svg.append('g')
+              .attr('transform', 'translate(0,'+ (height-padding) + ')')
+              .call(d3.axisBottom(pScale))
+            svg.append('g')
+              .attr('transform', 'translate('+ padding + ',' + '0)')
+              .call(d3.axisLeft(yScale).tickValues([0]).tickSize(0))
+              svg.append('text')
+                .attr('x', 10)
+                .attr('y', 180)
+                .attr('transform', 'rotate(90,10,180)')
+                .text('Fast Food Item')
+                svg.append('text')
+                  .attr('x', 470)
+                  .attr('y', 495)
+                  .text('Protein (g)')
+            showProtein();
+          });
+        svg2.append('text')
+          .attr('x', 470)
+          .attr('y', 20)
+          .attr('cursor', 'pointer')
+          .text('Fat')
+          .on('click', function(d){
+            d3.select('#main').selectAll('svg > rect').remove()
+            d3.selectAll('svg > g').remove()
+            d3.select('#main').selectAll('svg > text').remove()
+            svg.append('g')
+              .attr('transform', 'translate(0,'+ (height-padding) + ')')
+              .call(d3.axisBottom(pScale))
+            svg.append('g')
+              .attr('transform', 'translate('+ padding + ',' + '0)')
+              .call(d3.axisLeft(yScale).tickValues([0]).tickSize(0))
+              svg.append('text')
+                .attr('x', 10)
+                .attr('y', 180)
+                .attr('transform', 'rotate(90,10,180)')
+                .text('Fast Food Item')
+                svg.append('text')
+                  .attr('x', 470)
+                  .attr('y', 495)
+                  .text('Fat (g)')
+            showFat();
+          });
+        svg2.append('text')
+          .attr('x', 558)
+          .attr('y', 20)
+          .attr('cursor', 'pointer')
+          .text('Carbs')
+          .on('click', function(d){
+            d3.select('#main').selectAll('svg > rect').remove()
+            d3.selectAll('svg > g').remove()
+            d3.select('#main').selectAll('svg > text').remove()
+            svg.append('g')
+              .attr('transform', 'translate(0,'+ (height-padding) + ')')
+              .call(d3.axisBottom(cScale))
+            svg.append('g')
+              .attr('transform', 'translate('+ padding + ',' + '0)')
+              .call(d3.axisLeft(yScale).tickValues([0]).tickSize(0))
+              svg.append('text')
+                .attr('x', 10)
+                .attr('y', 180)
+                .attr('transform', 'rotate(90,10,180)')
+                .text('Fast Food Item')
+                svg.append('text')
+                  .attr('x', 470)
+                  .attr('y', 495)
+                  .text('Carbs (g)')
+            showCarbs();
+          });
+        svg2.append('text')
+          .attr('x', 652)
+          .attr('y', 20)
+          .attr('cursor', 'pointer')
+          .text('Sodium')
+          .on('click', function(d){
+            d3.select('#main').selectAll('svg > rect').remove()
+            d3.selectAll('svg > g').remove()
+            d3.select('#main').selectAll('svg > text').remove()
+            svg.append('g')
+              .attr('transform', 'translate(0,'+ (height-padding) + ')')
+              .call(d3.axisBottom(sScale))
+            svg.append('g')
+              .attr('transform', 'translate('+ padding + ',' + '0)')
+              .call(d3.axisLeft(yScale).tickValues([0]).tickSize(0))
+              svg.append('text')
+                .attr('x', 10)
+                .attr('y', 180)
+                .attr('transform', 'rotate(90,10,180)')
+                .text('Fast Food Item')
+                svg.append('text')
+                  .attr('x', 470)
+                  .attr('y', 495)
+                  .text('Sodium (g)')
+            showSodium();
+          });
+      function showCalories(){
+        nut.forEach(function(data, i){
+          console.log(data['sodium'])
+          svg.append('rect')
+            .attr('height', 16)
+            .attr('width', xScale(data['calories']) - padding)
+            .attr('x', padding + 1)
+            .attr('y', (height - padding - 16) - (17 * i))
+            .attr('fill', '#8AE1EC')
+            .style('opacity', 1)
+            .on('mouseover', function(d){
+              d3.select(this)
+                .style('opacity', 0.7)
+            })
+            .on("mouseout", function(d) {
+              d3.select(this)
+                .style('opacity', 1)
+            });
+          svg.append('text')
+            .attr('x', 45)
+            .attr('y', (height - padding - 4) - (17 * i))
+            .attr('font-size', 12)
+            .text(data['restaurant'] + ' ' + data['item'])
+            .on('mouseover', function(d, i){
+              div.transition()
+              .duration(1)
+              .style("opacity", .9);
+              div.text('Calories: ' + data['calories'] + '\n' + 'Protein: ' + data['protein'] + 'g'
+              + '\n' + 'Fat: ' + data['fat'] + 'g' + '\n' + 'Carbs: ' + data['carbs'] + 'g' + '\n'
+              + 'Sodium: ' + data['sodium'] + 'g'
+            )
+              .style("left", (d3.event.pageX) + "px")
+              .style("top", (d3.event.pageY - 28) + "px");
+            })
+            .on("mouseout", function(d) {
+              div.transition()
+              .duration(500)
+              .style("opacity", 0);
+            });
+      })
+    }
+    function showProtein(){
+      nut.forEach(function(data, i){
+        svg.append('rect')
+          .attr('height', 16)
+          .attr('width', pScale(data['protein']) - padding)
+          .attr('x', padding + 1)
+          .attr('y', (height - padding - 16) - (17 * i))
+          .attr('fill', '#FFC037')
+          .style('opacity', 1)
+          .on('mouseover', function(d){
+            d3.select(this)
+              .style('opacity', 0.7)
+          })
+          .on("mouseout", function(d) {
+            d3.select(this)
+              .style('opacity', 1)
+          });
+        svg.append('text')
+          .attr('x', 45)
+          .attr('y', (height - padding - 4) - (17 * i))
+          .attr('font-size', 12)
+          .text(data['restaurant'] + ' ' + data['item'])
+          .on('mouseover', function(d, i){
+            div.transition()
+            .duration(1)
+            .style("opacity", .9);
+            div.text('Calories: ' + data['calories'] + '\n' + 'Protein: ' + data['protein'] + 'g'
+            + '\n' + 'Fat: ' + data['fat'] + 'g' + '\n' + 'Carbs: ' + data['carbs'] + 'g' + '\n'
+            + 'Sodium: ' + data['sodium'] + 'g'
+          )
+            .style("left", (d3.event.pageX) + "px")
+            .style("top", (d3.event.pageY - 28) + "px");
+          })
+          .on("mouseout", function(d) {
+            div.transition()
+            .duration(500)
+            .style("opacity", 0);
+          });
+    })
+    }
+    function showFat(){
+      nut.forEach(function(data, i){
+        svg.append('rect')
+          .attr('height', 16)
+          .attr('width', pScale(data['fat']) - padding)
+          .attr('x', padding + 1)
+          .attr('y', (height - padding - 16) - (17 * i))
+          .attr('fill', '#05BA47')
+          .style('opacity', .7)
+          .on('mouseover', function(d){
+            d3.select(this)
+              .style('opacity', 1)
+          })
+          .on("mouseout", function(d) {
+            d3.select(this)
+              .style('opacity', 0.7)
+          });
+        svg.append('text')
+          .attr('x', 45)
+          .attr('y', (height - padding - 4) - (17 * i))
+          .attr('font-size', 12)
+          .text(data['restaurant'] + ' ' + data['item'])
+          .on('mouseover', function(d, i){
+            div.transition()
+            .duration(1)
+            .style("opacity", .9);
+            div.text('Calories: ' + data['calories'] + '\n' + 'Protein: ' + data['protein'] + 'g'
+            + '\n' + 'Fat: ' + data['fat'] + 'g' + '\n' + 'Carbs: ' + data['carbs'] + 'g' + '\n'
+            + 'Sodium: ' + data['sodium'] + 'g'
+          )
+            .style("left", (d3.event.pageX) + "px")
+            .style("top", (d3.event.pageY - 28) + "px");
+          })
+          .on("mouseout", function(d) {
+            div.transition()
+            .duration(500)
+            .style("opacity", 0);
+          });
+    })
+    }
+    function showCarbs(){
+      nut.forEach(function(data, i){
+        svg.append('rect')
+          .attr('height', 16)
+          .attr('width', cScale(data['carbs']) - padding)
+          .attr('x', padding + 1)
+          .attr('y', (height - padding - 16) - (17 * i))
+          .attr('fill', '#CE3963')
+          .style('opacity', 0.7)
+          .on('mouseover', function(d){
+            d3.select(this)
+              .style('opacity', 1)
+          })
+          .on("mouseout", function(d) {
+            d3.select(this)
+              .style('opacity', 0.7)
+          });
+        svg.append('text')
+          .attr('x', 45)
+          .attr('y', (height - padding - 4) - (17 * i))
+          .attr('font-size', 12)
+          .text(data['restaurant'] + ' ' + data['item'])
+          .on('mouseover', function(d, i){
+            div.transition()
+            .duration(1)
+            .style("opacity", .9);
+            div.text('Calories: ' + data['calories'] + '\n' + 'Protein: ' + data['protein'] + 'g'
+            + '\n' + 'Fat: ' + data['fat'] + 'g' + '\n' + 'Carbs: ' + data['carbs'] + 'g' + '\n'
+            + 'Sodium: ' + data['sodium'] + 'g'
+          )
+            .style("left", (d3.event.pageX) + "px")
+            .style("top", (d3.event.pageY - 28) + "px");
+          })
+          .on("mouseout", function(d) {
+            div.transition()
+            .duration(500)
+            .style("opacity", 0);
+          });
+    })
+    }
+    function showSodium(){
+      nut.forEach(function(data, i){
+        svg.append('rect')
+          .attr('height', 16)
+          .attr('width', sScale(data['sodium']) - padding)
+          .attr('x', padding + 1)
+          .attr('y', (height - padding - 16) - (17 * i))
+          .attr('fill', '#FC6631')
+          .style('opacity', 0.7)
+          .on('mouseover', function(d){
+            d3.select(this)
+              .style('opacity', 1)
+          })
+          .on("mouseout", function(d) {
+            d3.select(this)
+              .style('opacity', 0.7)
+          });
+        svg.append('text')
+          .attr('x', 45)
+          .attr('y', (height - padding - 4) - (17 * i))
+          .attr('font-size', 12)
+          .text(data['restaurant'] + ' ' + data['item'])
+          .on('mouseover', function(d, i){
+            div.transition()
+            .duration(1)
+            .style("opacity", .9);
+            div.text('Calories: ' + data['calories'] + '\n' + 'Protein: ' + data['protein'] + 'g'
+            + '\n' + 'Fat: ' + data['fat'] + 'g' + '\n' + 'Carbs: ' + data['carbs'] + 'g' + '\n'
+            + 'Sodium: ' + data['sodium'] + 'g'
+          )
+            .style("left", (d3.event.pageX) + "px")
+            .style("top", (d3.event.pageY - 28) + "px");
+          })
+          .on("mouseout", function(d) {
+            div.transition()
+            .duration(500)
+            .style("opacity", 0);
+          });
+    })
+    }
+
+}
+    </script>
+  </div><!-- end div main -->
+  <div id = 'buttons'>
+    <script>
+    svg2.append('rect')
+      .attr('x', 248)
+      .attr('y', 0)
+      .attr('height', 30)
+      .attr('width', 65)
+      .attr('fill', '#8AE1EC')
+      .attr('rx', 10)
+      .attr('ry', 10)
+    svg2.append('rect')
+      .attr('x', 348)
+      .attr('y', 0)
+      .attr('height', 30)
+      .attr('width', 65)
+      .attr('fill', '#FFC037')
+      .attr('rx', 10)
+      .attr('ry', 10);
+    svg2.append('rect')
+      .attr('x', 448)
+      .attr('y', 0)
+      .attr('height', 30)
+      .attr('width', 65)
+      .attr('fill', '#05BA47')
+      .attr('rx', 10)
+      .attr('ry', 10);
+    svg2.append('rect')
+      .attr('x', 548)
+      .attr('y', 0)
+      .attr('height', 30)
+      .attr('width', 65)
+      .attr('fill', '#CE3963')
+      .attr('rx', 10)
+      .attr('ry', 10);
+    svg2.append('rect')
+      .attr('x', 648)
+      .attr('y', 0)
+      .attr('height', 30)
+      .attr('width', 65)
+      .attr('fill', '#FC6631')
+      .attr('rx', 10)
+      .attr('ry', 10);
+    </script>
+  </div>
+</body>
