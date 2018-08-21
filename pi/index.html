@@ -1,0 +1,409 @@
+<!-- influenced by http://mkweb.bcgsc.ca/pi/art/ -->
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://unpkg.com/d3-simple-slider"></script>
+<link rel = 'shortcut icon' href = 'favi.ico'>
+<link href="https://fonts.googleapis.com/css?family=Frank+Ruhl+Libre" rel="stylesheet">
+
+<title>PI Chord Graph</title>
+<style>
+  *{
+    font-family: 'Frank Ruhl Libre', serif;
+  }
+  #main{
+    margin-left:20;
+    float:left;
+    display: inline-block;
+  }
+  #info{
+    display:inline-block;
+  }
+  svg{
+    /* border: 1px solid #ccc; */
+  }
+  body{
+    background: #003A65;
+  }
+  h2{
+    color: white;
+    margin-bottom: -10;
+    font-size: 40;
+  }
+  .axis line{
+    stroke: white;
+  }
+  .axis path{
+    stroke: white;
+  }
+  .axis text {
+    font-size: 14;
+  }
+  .axis2 text{
+    display: none;
+  }
+  .axis2 line{
+    stroke: white;
+  }
+  .axis2 path{
+    stroke: white;
+  }
+  #slider{
+    display:inline-block;
+  }
+</style>
+<body>
+  <h2 align = 'center'>1000 Digits of &Pi;</h2>
+  <div id = 'main'>
+    <script>
+      // var width = 800;
+      // var height = 575;
+      // var svg = d3.select('#main')
+      //   .append('svg')
+      //   .attr('height', height)
+      //   .attr('width', width)
+      //   .append('g')
+      //   .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+      //
+      // var color = ['#FFD20A', '#068521', '#FC9100', '#30059A', '#42EB73', '#1DABE2', '#3F1C40', '#EC7D66', '#1B3C5F', '#E12417'];
+      // var radius = Math.min(width, height) / 2;
+      // var chord = { digits: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10],};
+      //
+      // var pie = d3.pie()
+      // .sort(null);
+      // var data = pie(chord.digits)
+      // var arc = d3.arc()
+      //   .innerRadius(radius - 45)
+      //   .outerRadius(radius - 5);
+      // var path = svg.selectAll('path')
+      //   .data(data)
+      //   .enter().append('path')
+      //   .attr('fill', function(d, i){return color[i];})
+      //   .attr('d', arc);
+      // set variables
+      var height = 550;
+      var width = 1000;
+      var padding = 40;
+      // create svg and scale
+      var svg = d3.select('#main')
+        .append('svg')
+        .attr('height', height)
+        .attr('width', width)
+      var xScale = d3.scaleLinear()
+        .domain([0,9])
+        .range([padding, width - padding]);
+      var yScale = d3.scaleLinear()
+        .domain([0, 160])
+        .range([height - padding, padding]);
+      svg.append('g')
+        .attr('class', 'axis2')
+        .attr('transform', 'translate(0,'+ (height-padding) + ')')
+        .attr('stroke', 'white')
+        .call(d3.axisBottom(xScale).tickValues([0]).tickSize(0));
+      svg.append('g')
+        .attr('class', 'axis')
+        .attr('transform', 'translate('+ padding + ',' + '0)')
+        .attr('stroke', 'white')
+        .call(d3.axisLeft(yScale));
+      //x scale text
+      for(var j = 0; j < 10; j++){
+        svg.append('text')
+          .attr('x', 106 + 80 * j)
+          .attr('y', 530)
+          .attr('fill', 'white')
+          .attr('font-size', 16)
+          .text(j)
+      }
+      // load in data
+      d3.csv('pi.txt', function(data){
+        function showLabels(){
+          for(var j = 0; j < 10; j++){
+            svg.append('text')
+              .attr('x', 106 + 80 * j)
+              .attr('y', 530)
+              .attr('fill', 'white')
+              .attr('font-size', 16)
+              .text(j)
+          }
+        }
+        var digits = data.columns
+        //console.log(digits)
+        var test = digits[0];
+        var split = test.split('').map(Number)
+        var zeroCount = 0;
+        var oneCount = 0;
+        var twoCount = 0;
+        var threeCount = 0;
+        var fourCount = 0;
+        var fiveCount = 0;
+        var sixCount = 0;
+        var sevenCount = 0;
+        var eightCount = 0;
+        var nineCount = 0;
+        var i = 1;
+        var m = 0;
+        //slider
+        var x = 200;
+        var slider = d3.sliderHorizontal()
+          .min(600)
+          .max(0)
+          .default(x)
+          .step(20)
+          .width(160)
+          .displayValue(false)
+          .ticks(0)
+          .on('onchange', val => {
+            x = val;
+            console.log(x);
+          })
+
+        d3.select("#slider").append("svg")
+        .attr("width", 220)
+        .attr("height", 50)
+        .append("g")
+        .attr("transform", "translate(30,15)")
+        .call(slider);
+        d3.select('#slider').selectAll('text').remove();
+        // loop and set time function to append rects
+        function myLoop(){
+          setTimeout(function(){
+            //side text
+            d3.select('.totalDigits').remove();
+            svg2.append('text')
+              .attr('class', 'totalDigits')
+              .attr('x', 80)
+              .attr('y', 100)
+              .attr('fill', 'white')
+              .attr('font-size', 35)
+              .text(i + 1)
+            if((i + 1) % 11 == 0){
+              m = 0;
+              d3.selectAll('.currentDigits').remove()
+              svg2.append('text')
+                .attr('class', 'currentDigits')
+                .attr('x', 20 + 20 * m)
+                .attr('y', 180)
+                .attr('fill', 'white')
+                .attr('font-size', 35)
+                .text(split[i-1])
+              m++;
+            }
+            else{
+              svg2.append('text')
+                .attr('class', 'currentDigits')
+                .attr('x', 20 + 20 * m)
+                .attr('y', 180)
+                .attr('fill', 'white')
+                .attr('font-size', 35)
+                .text(split[i - 1])
+              m++;
+            }
+            //start main graph
+            if(split[i-1] == 0){
+              svg.append('rect')
+                .attr('x', 100)
+                .attr('y', (height - padding - zeroCount * 2.9 - 3))
+                .attr('height', 3)
+                .attr('width', 20)
+                .attr('fill', '#1f77b4')
+              d3.select('.label0').remove();
+              svg.append('text')
+                .attr('class', 'label0')
+                .attr('x', 90)
+                .attr('y', (height - padding - zeroCount * 2.9 - 10))
+                .attr('fill', 'white')
+                .attr('font-size', 25)
+                .text((((zeroCount + 1)/i).toFixed(3) * 100).toFixed(1) + '%')
+              zeroCount++;
+            }
+            else if(split[i-1] == 1){
+              svg.append('rect')
+                .attr('x', 180)
+                .attr('y', height - padding - oneCount * 2.9 - 3)
+                .attr('height', 3)
+                .attr('width', 20)
+                .attr('fill', '#ff7f0e')
+              d3.select('.label1').remove()
+              svg.append('text')
+                .attr('class', 'label1')
+                .attr('x', 170)
+                .attr('y', (height - padding - oneCount * 2.9 - 10))
+                .attr('fill', 'white')
+                .attr('font-size', 25)
+                .text((((oneCount + 1)/i).toFixed(3) * 100).toFixed(1) + '%')
+              oneCount++;
+            }
+            else if(split[i-1] == 2){
+              svg.append('rect')
+                .attr('x', 260)
+                .attr('y', height - padding - twoCount * 2.9 - 3)
+                .attr('height', 3)
+                .attr('width', 20)
+                .attr('fill', '#2ca02c')
+              d3.select('.label2').remove()
+              svg.append('text')
+                .attr('class', 'label2')
+                .attr('x', 250)
+                .attr('y', (height - padding - twoCount * 2.9 - 10))
+                .attr('fill', 'white')
+                .attr('font-size', 25)
+                .text((((twoCount + 1)/i).toFixed(3) * 100).toFixed(1) + '%')
+                twoCount++;
+            }
+            else if(split[i-1] == 3){
+              svg.append('rect')
+                .attr('x', 340)
+                .attr('y', height - padding - threeCount * 2.9 - 3)
+                .attr('height', 3)
+                .attr('width', 20)
+                .attr('fill', '#d62728')
+              d3.select('.label3').remove()
+              svg.append('text')
+                .attr('class', 'label3')
+                .attr('x', 330)
+                .attr('y', (height - padding - threeCount * 2.9 - 10))
+                .attr('fill', 'white')
+                .attr('font-size', 25)
+                .text((((threeCount + 1)/(i)).toFixed(3) * 100).toFixed(1) + '%')
+              threeCount++;
+            }
+            else if(split[i-1] == 4){
+              svg.append('rect')
+                .attr('x', 420)
+                .attr('y', height - padding - fourCount * 2.9 - 3)
+                .attr('height', 3)
+                .attr('width', 20)
+                .attr('fill', '#9467bd')
+              d3.select('.label4').remove()
+              svg.append('text')
+                .attr('class', 'label4')
+                .attr('x', 410)
+                .attr('y', (height - padding - fourCount * 2.9 - 10))
+                .attr('fill', 'white')
+                .attr('font-size', 25)
+                .text((((fourCount + 1)/i).toFixed(3) * 100).toFixed(1) + '%')
+              fourCount++;
+            }
+            else if(split[i-1] == 5){
+              svg.append('rect')
+                .attr('x', 500)
+                .attr('y', height - padding - fiveCount * 2.9 - 3)
+                .attr('height', 3)
+                .attr('width', 20)
+                .attr('fill', '#8c564b')
+              d3.select('.label5').remove()
+              svg.append('text')
+                .attr('class', 'label5')
+                .attr('x', 490)
+                .attr('y', (height - padding - fiveCount * 2.9 - 10))
+                .attr('fill', 'white')
+                .attr('font-size', 25)
+                .text((((fiveCount + 1)/i).toFixed(3) * 100).toFixed(1) + '%')
+              fiveCount++;
+            }
+            else if(split[i-1] == 6){
+              svg.append('rect')
+                .attr('x', 580)
+                .attr('y', height - padding - sixCount * 2.9 - 3)
+                .attr('height', 3)
+                .attr('width', 20)
+                .attr('fill', '#e377c2')
+              d3.select('.label6').remove()
+              svg.append('text')
+                .attr('class', 'label6')
+                .attr('x', 570)
+                .attr('y', (height - padding - sixCount * 2.9 - 10))
+                .attr('fill', 'white')
+                .attr('font-size', 25)
+                .text((((sixCount + 1)/i).toFixed(3) * 100).toFixed(1) + '%')
+              sixCount++;
+            }
+            else if(split[i-1] == 7){
+              svg.append('rect')
+                .attr('x', 660)
+                .attr('y', height - padding - sevenCount * 2.9 - 3)
+                .attr('height', 3)
+                .attr('width', 20)
+                .attr('fill', '#7f7f7f')
+                d3.select('.label7').remove()
+                svg.append('text')
+                  .attr('class', 'label7')
+                  .attr('x', 650)
+                  .attr('y', (height - padding - sevenCount * 2.9 - 10))
+                  .attr('fill', 'white')
+                  .attr('font-size', 25)
+                  .text((((sevenCount + 1)/i).toFixed(3) * 100).toFixed(1) + '%')
+              sevenCount++;
+            }
+            else if(split[i-1] == 8){
+              svg.append('rect')
+                .attr('x', 740)
+                .attr('y', height - padding - eightCount * 2.9 - 3)
+                .attr('height', 3)
+                .attr('width', 20)
+                .attr('fill', '#bcbd22')
+              d3.select('.label8').remove()
+              svg.append('text')
+                .attr('class', 'label8')
+                .attr('x', 730)
+                .attr('y', (height - padding - eightCount * 2.9 - 10))
+                .attr('fill', 'white')
+                .attr('font-size', 25)
+                .text((((eightCount + 1)/i).toFixed(3) * 100).toFixed(1) + '%')
+              eightCount++;
+            }
+            else if(split[i-1] == 9){
+              svg.append('rect')
+                .attr('x', 820)
+                .attr('y', height - padding - nineCount * 2.9 - 3)
+                .attr('height', 3)
+                .attr('width', 20)
+                .attr('fill', '#17becf')
+              d3.select('.label9').remove()
+              svg.append('text')
+                .attr('class', 'label9')
+                .attr('x', 810)
+                .attr('y', (height - padding - nineCount * 2.9 - 10))
+                .attr('fill', 'white')
+                .attr('font-size', 25)
+                .text((((nineCount + 1)/i).toFixed(3) * 100).toFixed(1) + '%')
+              nineCount++;
+            }
+            i++;
+            if(i < 1000){
+              myLoop();
+            }
+          }, x) // set time delay
+        }
+        myLoop();
+      })
+    </script>
+  </div>
+  <div id = 'display'>
+    <script>
+      // create second svg
+      var svg2 = d3.select('#display')
+        .append('svg')
+        .attr('height', 250)
+        .attr('width', 220);
+      svg2.append('text')
+        .attr('x', 40)
+        .attr('y', 60)
+        .attr('fill', 'white')
+        .attr('font-size', 30)
+        .text('Total Digits')
+      svg2.append('text')
+        .attr('x', 25)
+        .attr('y', 140)
+        .attr('fill', 'white')
+        .attr('font-size', 30)
+        .text('Current Digits')
+      svg2.append('text')
+        .attr('x', 25)
+        .attr('y', 240)
+        .attr('fill', 'white')
+        .attr('font-size', 30)
+        .text('Adjust Speed')
+    </script>
+  </div>
+  <div id = 'slider'>
+  </div>
+</body>

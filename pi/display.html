@@ -1,0 +1,159 @@
+<!-- influenced by http://mkweb.bcgsc.ca/pi/art/ -->
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<link href="https://fonts.googleapis.com/css?family=Frank+Ruhl+Libre" rel="stylesheet">
+<link rel="shortcut icon" href="favi.png" />
+<title>Pi Visualization</title>
+<style>
+  div.tooltip {
+    position: absolute;
+    text-align: center;
+    width: 82px;
+    height: 90px;
+    padding: 2px;
+    font: 12px sans-serif;
+    font-family:'Open Sans', sans-serif;
+    background: white;
+    border: 0px;
+    border-radius: 8px;
+    pointer-events: none;
+  }
+  *{
+    font-family: 'Frank Ruhl Libre', serif;
+  }
+  svg{
+    /* border: 1px solid #ccc; */
+  }
+  body{
+    background-color: black;
+  }
+  h2{
+    color:white;
+    font-size: 40;
+    text-align: center;
+    margin-bottom: -10;
+  }
+</style>
+<body>
+  <h2>
+    500 Digits of &Pi;
+  </h2>
+  <div id = 'main' align = 'center'>
+  <div id = 'tooltip'></
+    <script>
+      var height = 550;
+      var width = 800;
+
+      var svg = d3.select('#main')
+        .append('svg')
+        .attr('height', height)
+        .attr('width', width);
+      var div = d3.select('body')
+        .append('div')
+        .attr('class', 'tooltip')
+        .style('opacity', 1);
+      d3.csv('pi.txt', function(data){
+        var digits = data.columns;
+        var test = digits[0];
+        var split = test.split('').map(Number)
+        //console.log(split);
+      function printLine(start, end, y){
+        var index = 0;
+        for(var i = start; i < end; i++){
+          switch(split[i]){
+            case 0:
+            svg.append('circle')
+              .attr('cx', index * 30 + 40)
+              .attr('cy', 30 + y)
+              .attr('r', 10)
+              .style('fill', '#0499E8')
+              console.log(i)
+              .on('mouseover', function(d, i){
+                div.transition()
+                .duration(1)
+                .style('opacity', 1);
+                div.text('test')
+                .style('left', (d3.event.pageX) + 'px')
+                .style('top', (d3.evet.pageY - 20) + 'px')
+              })
+              .on('mouseout', function(d){
+                div.transition()
+                .duration(500)
+                .style('opacity', 0);
+              })
+              break;
+            case 1:
+            svg.append('circle')
+              .attr('cx', index * 30 + 40)
+              .attr('cy', 30 + y)
+              .attr('r', 10)
+              .style('fill', '#FFC139')
+              break;
+            case 2:
+            svg.append('circle')
+              .attr('cx', index * 30 + 40)
+              .attr('cy', 30 + y)
+              .attr('r', 10)
+              .style('fill', '#4C359D')
+              break;
+            case 3:
+            svg.append('circle')
+              .attr('cx', index * 30 + 40)
+              .attr('cy', 30 + y)
+              .attr('r', 10)
+              .style('fill', '#0FF6A3')
+              break;
+            case 4:
+            svg.append('circle')
+              .attr('cx', index * 30 + 40)
+              .attr('cy', 30 + y)
+              .attr('r', 10)
+              .style('fill', '#E02F3E')
+              break;
+            case 5:
+            svg.append('circle')
+              .attr('cx', index * 30 + 40)
+              .attr('cy', 30 + y)
+              .attr('r', 10)
+              .style('fill', '#3EC2C3')
+              break;
+            case 6:
+            svg.append('circle')
+              .attr('cx', index * 30 + 40)
+              .attr('cy', 30 + y)
+              .attr('r', 10)
+              .style('fill', '#FE5C14')
+              break;
+            case 7:
+            svg.append('circle')
+              .attr('cx', index * 30 + 40)
+              .attr('cy', 30 + y)
+              .attr('r', 10)
+              .style('fill', '#FF166E')
+              break;
+            case 8:
+            svg.append('circle')
+              .attr('cx', index * 30 + 40)
+              .attr('cy', 30 + y)
+              .attr('r', 10)
+              .style('fill', '#1D2287')
+              break;
+            case 9:
+            svg.append('circle')
+              .attr('cx', index * 30 + 40)
+              .attr('cy', 30 + y)
+              .attr('r', 10)
+              .style('fill', '#069D41')
+              break;
+            }
+            index++;
+          }
+      }
+      for(var j = 0; j < 20; j++){
+        printLine(j * 25, 25 *(j + 1), j * 28)
+      }
+
+      })
+
+    </script>
+  </div>
+</body>
